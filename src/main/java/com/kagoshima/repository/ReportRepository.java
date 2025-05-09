@@ -1,0 +1,12 @@
+package com.kagoshima.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.kagoshima.entity.Employee;
+import com.kagoshima.entity.Report;
+
+public interface ReportRepository extends JpaRepository<Report, String> {
+    List<Report> findByEmployee(Employee employee);
+}

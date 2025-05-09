@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="common/header :: head_fragment(title=報告書詳細)"></head>
+
+<body class="h-100 overflow-auto bg-light">
+    <div class="row h-100">
+        <div class=" text-white col-4 col-xs-2 col-md-3 col-xl-2 col-xxl-2">
+            <div class="position-fixed h-100 bg-dark">
+                <div class="m-4">
+                    <nav th:replace="common/side :: copy"></nav>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 h-100 col-8 col-xs-10 col-md-9 col-xl-10 col-xxl-10">
+            <div class="container-fluid p-0">
+                <h1 class="h3 mb-4">報告書 詳細</h1>
+            </div>
+
+            <div class="row">
+                <div class="col-11 col-sm-10 col-xl-8 col-xxl-7 mb-3">
+                    <div class="row">
+                        <div class="col">
+                            <a th:href="@{/reports}" class="btn btn-return-custom btn-spacing">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                                    class="bi bi-arrow-return-left" viewBox="1 0 16 17">
+                                    <path fill-rule="evenodd"
+                                        d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z" />
+                                </svg>
+                                戻る
+                            </a>
+                            <a th:href="@{/reports/update/{id}/(id=${report.id})}"
+                                class="btn btn-edit-custom btn-spacing"
+                                th:if="${employee.role.name eq 'ADMIN' or employee.code eq report.employee.code}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                                    class="bi bi-pencil" viewBox="0 0 16 16">
+                                    <path
+                                        d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                </svg>
+                                編集
+                            </a>
+                            <button type="button" class="btn btn-delete-custom" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal"
+                                th:if="${employee.role.name eq 'ADMIN' or employee.code eq report.employee.code}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                                    class="bi bi-trash" viewBox="1 0 16 17">
+                                    <path
+                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                    <path fill-rule="evenodd"
+                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                </svg>
+                                削除
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">削除確認</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            本当に削除しますか？
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-close-custom"
+                                                data-bs-dismiss="modal">Close</button>
+                                            <form name="form" th:action="@{/reports/{id}/delete(id=${id})}"
+                                                th:method="post">
+                                                <input type="submit" value="削除" class="btn btn-delete-custom"
+                                                    th:style="${employee.role.name} == 'ADMIN' or ${employee.code} == ${report.employee.code}? 'display:block' : 'display:none'">
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto ml-auto">
+                            <form th:action="@{/reports/export}" method="post" style="display: inline-block;">
+                                <button type="submit" class="btn btn-export-custom btn-spacing">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        class="bi bi-file-arrow-down" viewBox="0 0 16 16">
+                                        <path
+                                            d="M8 5a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 9.293V5.5A.5.5 0 0 1 8 5" />
+                                        <path
+                                            d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1" />
+                                    </svg>
+                                    出力
+                                </button>
+                                <input type="hidden" name="reportId" th:value="${reportId}" />
+                            </form>
+                            <button type="button" class="btn btn-approve-custom btn-spacing" data-bs-toggle="modal"
+                                data-bs-target="#approveModal" sec:authorize="hasAuthority('ADMIN')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                    class="bi bi-heart" viewBox="0 0 16 16">
+                                    <path
+                                        d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
+                                </svg>
+                                承認/非認
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="approveModalLabel">承認/非認</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>承認しますか？</p>
+                                        </div>
+                                        <form th:action="@{/reports/approve}" th:object="${report}" th:method="post">
+                                            <div class="modal-footer justify-content-center">
+                                                <button type="submit" name="choice" value="true"
+                                                    class="btn btn-approve-custom-modal">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                                        fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
+                                                    </svg>
+                                                </button>
+                                                <button type="submit" name="choice" value="false"
+                                                    class="btn btn-disapprove-custom-modal">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                                        fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                                                    </svg>
+                                                </button>
+                                                <input type="hidden" th:field="*{id}" id="id">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-comment-custom" data-bs-toggle="offcanvas"
+                                data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"
+                                sec:authorize="hasAuthority('ADMIN')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                    class="bi bi-chat-dots" viewBox="0 1 16 16">
+                                    <path
+                                        d="M5 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+                                    <path
+                                        d="m2.165 15.803.02-.004c1.83-.363 2.948-.842 3.468-1.105A9.06 9.06 0 0 0 8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6a10.437 10.437 0 0 1-.524 2.318l-.003.011a10.722 10.722 0 0 1-.244.637c-.079.186.074.394.273.362a21.673 21.673 0 0 0 .693-.125zm.8-3.108a1 1 0 0 0-.287-.801C1.618 10.83 1 9.468 1 8c0-3.192 3.004-6 7-6s7 2.808 7 6c0 3.193-3.004 6-7 6a8.06 8.06 0 0 1-2.088-.272 1 1 0 0 0-.711.074c-.387.196-1.24.57-2.634.893a10.97 10.97 0 0 0 .398-2z" />
+                                </svg>
+                                コメント追加
+                            </button>
+
+                            <form th:action="@{/reports/comment}" th:object="${report}" th:method="post">
+                                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight"
+                                    aria-labelledby="offcanvasRightLabel">
+                                    <div class="offcanvas-header">
+                                        <h5 class="offcanvas-title" id="offcanvasRightLabel">コメント追加</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="offcanvas-body">
+                                        <div class="col">
+                                            <textarea class="form-control" type="text" th:field="*{comment}"
+                                                th:errorclass="err" id="comment" rows="15"></textarea>
+                                            <span th:errors="*{comment}" class="text-danger"></span>
+                                        </div>
+                                        <input type="hidden" th:field="*{id}" id="id">
+                                        <div class="text-end p-3">
+                                            <input type="submit" value="保存" class="btn btn-save-custom">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+                <span th:if="${deleteError} neq null" th:text="${deleteError}" class="text-danger"></span>
+
+
+                <form th:action="@{/reports}" th:object="${report}" th:method="post">
+                    <div class="row">
+                        <div class="col-11 col-sm-10 col-xl-8 col-xxl-7 pb-3">
+                            <div class="mb-5">
+                                <table class="table table-striped table-bordered">
+                                    <tr>
+                                        <th class="w-25">日付</th>
+                                        <td class="align-middle"
+                                            th:text="${#temporals.format(report.reportMonth, 'yyyy/MM')}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>提出期日</th>
+                                        <td class="align-middle"
+                                            th:text="${#temporals.format(report.reportDeadline, 'yyyy/MM/dd')}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>氏名</th>
+                                        <td class="align-middle"
+                                            th:text="${report.employee.lastName} + ' ' + ${report.employee.firstName}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>所属</th>
+                                        <td class="align-middle" th:text="${report.employee.department.name}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>提出日</th>
+                                        <td class="align-middle" th:if="${report.submittedAt != null}"
+                                            th:text="${#temporals.format(report.submittedAt, 'yyyy-MM-dd')}">
+                                        </td>
+                                        <td class="align-middle" th:if="${report.submittedAt == null}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                fill="currentColor" class="bi bi-dash-lg" viewBox="-7 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                    d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z" />
+                                            </svg>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>更新日時</th>
+                                        <td class="align-middle"
+                                            th:text="${#temporals.format(report.updatedAt, 'yyyy-MM-dd')}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>完了</th>
+                                        <td class="align-middle">
+                                            <svg th:if="${report.completeFlg}" xmlns="http://www.w3.org/2000/svg"
+                                                width="25" height="25" fill="green" class="bi bi-check-circle-fill"
+                                                viewBox="0 0 16 16">
+                                                <path
+                                                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                            </svg>
+                                            <svg th:if="${!report.completeFlg}" xmlns="http://www.w3.org/2000/svg"
+                                                width="22" height="22" fill="currentColor" class="bi bi-dash-lg"
+                                                viewBox="-7 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                    d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>承認</th>
+                                        <td class="align-middle">
+                                            <svg th:if="${report.approvalFlg != null and report.approvalFlg}"
+                                                xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#1E90FF"
+                                                class="bi bi-emoji-smile-fill" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M10 8c-.552 0-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5S10.552 8 10 8" />
+                                            </svg>
+
+                                            <svg th:if="${report.approvalFlg != null and !report.approvalFlg}"
+                                                xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="red"
+                                                class="bi bi-emoji-dizzy-fill" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16M4.146 5.146a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 1 1 .708.708l-.647.646.647.646a.5.5 0 1 1-.708.708L5.5 7.207l-.646.647a.5.5 0 1 1-.708-.708l.647-.646-.647-.646a.5.5 0 0 1 0-.708m5 0a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708.708l-.647.646.647.646a.5.5 0 1 1-.708.708l-.646-.647-.646.647a.5.5 0 1 1-.708-.708l.647-.646-.647-.646a.5.5 0 0 1 0-.708M8 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4" />
+                                            </svg>
+
+
+                                            <svg th:if="${report.approvalFlg == null}"
+                                                xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                fill="currentColor" class="bi bi-dash-lg" viewBox="-7 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                    d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z" />
+                                            </svg>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>コメント</th>
+                                        <td class="align-middle">
+                                            <textarea class="form-control" type="text" th:field="*{comment}"
+                                                th:errorclass="err" id="comment" rows="5" readonly></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-xl-11 col-xxl-9 pb-3">
+
+                            <div class="mb-3">
+                                <div class="card">
+                                    <div class="card-header card-green">
+                                        現場関係
+                                    </div>
+                                    <div class="card-body card-body-custom">
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="contentBusiness">業務環境/開発環境</label>
+                                            <p class="mb-1"></p>
+                                            <textarea class="form-control" type="text" th:field="*{contentBusiness}"
+                                                th:errorclass="err" id="contentBusiness" rows="22" readonly></textarea>
+                                            <span th:errors="*{contentBusiness}" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="row">
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                    <div class="card">
+                                                        <div class="card-header card-blue">
+                                                            時間
+                                                        </div>
+                                                        <div class="card-body card-body-custom">
+                                                            <div class="mb-3">
+                                                                <div class="row">
+                                                                    <div class="col">
+                                                                        <label class="form-label"
+                                                                            for="timeWorked">勤務時間</label>
+                                                                        <p class="mb-1"></p>
+                                                                        <div class="input-group">
+                                                                            <input class="form-control" type="number"
+                                                                                th:field="*{timeWorked}"
+                                                                                th:errorclass="err" id="timeWorked"
+                                                                                min="0" max="200" readonly></input>
+                                                                            <span class="input-group-text">時間</span>
+                                                                        </div>
+                                                                        <span th:errors="*{timeWorked}"
+                                                                            class="text-danger"></span>
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <label class="form-label"
+                                                                            for="timeOver">残業時間</label>
+                                                                        <p class="mb-1"></p>
+                                                                        <div class="input-group">
+                                                                            <input class="form-control" type="number"
+                                                                                th:field="*{timeOver}"
+                                                                                th:errorclass="err" id="timeOver"
+                                                                                min="0" max="200" readonly></input>
+                                                                            <span class="input-group-text">時間</span>
+                                                                        </div>
+                                                                        <span th:errors="*{timeOver}"
+                                                                            class="text-danger"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="card">
+                                                        <div class="card-header card-blue">
+                                                            目標達成率
+                                                        </div>
+                                                        <div class="card-body  card-body-custom">
+                                                            <div class="mb-3">
+                                                                <div class="row">
+                                                                    <div class="col">
+                                                                        <label class="form-label"
+                                                                            for="rateBusiness">業務目標達成率</label>
+                                                                        <p class="mb-1"></p>
+                                                                        <div class="input-group">
+                                                                            <input class="form-control" type="number"
+                                                                                th:field="*{rateBusiness}"
+                                                                                th:errorclass="err" id="rateBusiness"
+                                                                                min="0" max="100" readonly></input>
+                                                                            <span class="input-group-text">%</span>
+                                                                        </div>
+                                                                        <span th:errors="*{rateBusiness}"
+                                                                            class="text-danger"></span>
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <label class="form-label"
+                                                                            for="rateStudy">学習目標達成率</label>
+                                                                        <p class="mb-1"></p>
+                                                                        <div class="input-group">
+                                                                            <input class="form-control" type="number"
+                                                                                th:field="*{rateStudy}"
+                                                                                th:errorclass="err" id="rateStudy"
+                                                                                min="0" max="100" readonly></input>
+                                                                            <span class="input-group-text">%</span>
+                                                                        </div>
+                                                                        <span th:errors="*{rateStudy}"
+                                                                            class="text-danger"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="trendBusiness">業務量推移</label>
+                                            <p class="mb-1"></p>
+                                            <div class="col-md-1">
+                                                <input class="form-control" type="number" th:field="*{trendBusiness}"
+                                                    th:errorclass="err" id="trendBusiness" min="0" max="100"
+                                                    readonly></input>
+                                                <span th:errors="*{trendBusiness}" class="text-danger"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="contentMember">その他メンバー関連内容</label>
+                                            <p class="mb-1"></p>
+                                            <div class="col">
+                                                <textarea class="form-control" type="text" th:field="*{contentMember}"
+                                                    th:errorclass="err" id="contentMember" rows="15"
+                                                    readonly></textarea>
+                                                <span th:errors="*{contentMember}" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" for="contentCustomer">お客様情報</label>
+                                            <p class="mb-1"></p>
+                                            <div class="col">
+                                                <textarea class="form-control" type="text" th:field="*{contentCustomer}"
+                                                    th:errorclass="err" id="contentCustomer" rows="10"
+                                                    readonly></textarea>
+                                                <span th:errors="*{contentCustomer}" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" for="contentProblem">作業における問題点と解決策</label>
+                                            <p class="mb-1"></p>
+                                            <div class="col">
+                                                <textarea class="form-control" type="text" th:field="*{contentProblem}"
+                                                    th:errorclass="err" id="contentProblem" rows="7"
+                                                    readonly></textarea>
+                                                <span th:errors="*{contentProblem}" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="card">
+                                    <div class="card-header card-green">
+                                        目標
+                                    </div>
+                                    <div class="card-body card-body-custom">
+                                        <div class="mb-3">
+                                            <div class="card">
+                                                <div class="card-header card-blue">
+                                                    当月の目標に対する自己評価（前月の目標に対し）
+                                                </div>
+                                                <div class="card-body card-body-custom">
+
+                                                    <div class="container">
+                                                        <div class="mb-3">
+                                                            <label class="form-label"
+                                                                for="evaluationBusiness">業務目標</label>
+                                                            <p class="mb-1"></p>
+                                                            <textarea class="form-control" type="text"
+                                                                th:field="*{evaluationBusiness}" th:errorclass="err"
+                                                                id="evaluationBusiness" rows="4" readonly></textarea>
+                                                            <span th:errors="*{evaluationBusiness}"
+                                                                class="text-danger"></span>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="evaluationStudy">学習目標</label>
+                                                            <p class="mb-1"></p>
+                                                            <textarea class="form-control" type="text"
+                                                                th:field="*{evaluationBusiness}" th:errorclass="err"
+                                                                id="evaluationStudy" rows="4" readonly></textarea>
+                                                            <span th:errors="*{evaluationStudy}"
+                                                                class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="card">
+                                                <div class="card-header card-blue">
+                                                    来月目標
+                                                </div>
+                                                <div class="card-body card-body-custom">
+
+                                                    <div class="container">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="goalBusiness">業務目標</label>
+                                                            <p class="mb-1"></p>
+                                                            <textarea class="form-control" type="text"
+                                                                th:field="*{goalBusiness}" th:errorclass="err"
+                                                                id="goalBusiness" rows="4" readonly></textarea>
+                                                            <span th:errors="*{goalBusiness}"
+                                                                class="text-danger"></span>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="goalStudy">学習目標</label>
+                                                            <p class="mb-1"></p>
+                                                            <textarea class="form-control" type="text"
+                                                                th:field="*{goalStudy}" th:errorclass="err"
+                                                                id="goalStudy" rows="4" readonly></textarea>
+                                                            <span th:errors="*{goalStudy}" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="mb-3">
+                                <div class="card">
+                                    <div class="card-header card-green">
+                                        会社関係
+                                    </div>
+                                    <div class="card-body card-body-custom">
+                                        <div class="col">
+                                            <textarea class="form-control" type="text" th:field="*{contentCompany}"
+                                                th:errorclass="err" id="contentCompany" rows="5" readonly></textarea>
+                                            <span th:errors="*{contentCompany}" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-5">
+                                <div class="card">
+                                    <div class="card-header card-green">
+                                        その他
+                                    </div>
+                                    <div class="card-body card-body-custom">
+                                        <div class="col">
+                                            <textarea class="form-control" type="text" th:field="*{contentOthers}"
+                                                th:errorclass="err" id="contentOthers" rows="5" readonly></textarea>
+                                            <span th:errors="*{contentOthers}" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </form>
+
+            </div>
+        </div>
+
+
+
+
+</body>
+
+</html>
