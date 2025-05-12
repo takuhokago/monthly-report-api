@@ -160,7 +160,7 @@ public class Report {
     private Boolean approvalFlg;
 
     // コンストラクタで初期値設定
-    Report() {
+    public Report() {
         reportMonth = YearMonth.now();
         updatedAt = LocalDateTime.now();
         contentBusiness = "";
