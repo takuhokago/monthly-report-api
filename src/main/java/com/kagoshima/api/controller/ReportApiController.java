@@ -1,5 +1,6 @@
 package com.kagoshima.api.controller;
 
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
@@ -8,10 +9,12 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -74,6 +77,16 @@ public class ReportApiController {
 		Report report = reportService.findById(id);
 
 		return new ReportResponse(ReportMapper.toDto(report));
+	}
+
+	@PostMapping
+	public ResponseEntity<ReportResponse> createReport(@RequestBody ReportDto dto,
+			@AuthenticationPrincipal UserDetail userDetail) {
+
+		Employee employee = userDetail.getEmployee();
+		Report saved = reportService.save(dto, employee);
+
+		return ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(saved)));
 	}
 
 }

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kagoshima.api.dto.ReportDto;
+import com.kagoshima.api.mapper.ReportMapper;
 import com.kagoshima.constants.ErrorKinds;
 import com.kagoshima.entity.Employee;
 import com.kagoshima.entity.Report;
@@ -18,161 +20,176 @@ import com.kagoshima.repository.ReportRepository;
 @Service
 public class ReportService {
 
-    private final ReportRepository reportRepository;
+	private final ReportRepository reportRepository;
 
-    @Autowired
-    public ReportService(ReportRepository reportRepository) {
-        this.reportRepository = reportRepository;
-    }
+	@Autowired
+	public ReportService(ReportRepository reportRepository) {
+		this.reportRepository = reportRepository;
+	}
 
-    // 月報一覧表示処理
-    public List<Report> findAll() {
-        return reportRepository.findAll();
-    }
+	// 月報一覧表示処理
+	public List<Report> findAll() {
+		return reportRepository.findAll();
+	}
 
-    // idでレポートを検索
-    public Report findById(String id) {
-        // findByIdで検索
-        Optional<Report> option = reportRepository.findById(id);
-        // 取得できなかった場合はnullを返す
-        Report report = option.orElse(null);
-        return report;
-    }
+	// idでレポートを検索
+	public Report findById(String id) {
+		// findByIdで検索
+		Optional<Report> option = reportRepository.findById(id);
+		// 取得できなかった場合はnullを返す
+		Report report = option.orElse(null);
+		return report;
+	}
 
-    // 引数の従業員の報告書を取得
-    public List<Report> findByEmployee(Employee employee) {
-        List<Report> reports = reportRepository.findByEmployee(employee);
-        return reports;
-    }
-    
-    // 指定月の報告書を返す
-    public List<Report> getSpecifiedMonthReport(List<Report> reportList, YearMonth yearMonth) {
-    	List<Report> specigiedMonthReport = new ArrayList<Report>();
-    	if(yearMonth == null) {
-    		return specigiedMonthReport;
-    	}
-    	for(Report report : reportList) {
-    		if(report.getReportMonth().equals(yearMonth)) {
-    			specigiedMonthReport.add(report);
-    		}
-    	}
-    	
-    	return specigiedMonthReport;
-    }
-    
-    // 月報保存
-    @Transactional
-    public ErrorKinds save(Report report, UserDetail userDetail) {
-        // ログインしているユーザーのEmployeeを取得
-        Employee employee = userDetail.getEmployee();
+	// 引数の従業員の報告書を取得
+	public List<Report> findByEmployee(Employee employee) {
+		List<Report> reports = reportRepository.findByEmployee(employee);
+		return reports;
+	}
 
-        LocalDateTime now = LocalDateTime.now();
-        report.setUpdatedAt(now);
+	// 指定月の報告書を返す
+	public List<Report> getSpecifiedMonthReport(List<Report> reportList, YearMonth yearMonth) {
+		List<Report> specigiedMonthReport = new ArrayList<Report>();
+		if (yearMonth == null) {
+			return specigiedMonthReport;
+		}
+		for (Report report : reportList) {
+			if (report.getReportMonth().equals(yearMonth)) {
+				specigiedMonthReport.add(report);
+			}
+		}
 
-        if(report.isCompleteFlg()) {
-            report.setSubmittedAt(now);
-        } else {
-            report.setSubmittedAt(null);
-        }
+		return specigiedMonthReport;
+	}
 
-        report.setReportDeadline(report.getReportMonth().atEndOfMonth());
+	// 月報保存
+	@Transactional
+	public ErrorKinds save(Report report, UserDetail userDetail) {
+		// ログインしているユーザーのEmployeeを取得
+		Employee employee = userDetail.getEmployee();
 
-        // 月重複チェック
-        ErrorKinds result = reportDateCheck(report, employee);
-        if (ErrorKinds.CHECK_OK != result) {
-            return result;
-        }
+		LocalDateTime now = LocalDateTime.now();
+		report.setUpdatedAt(now);
 
-        // ログインしているユーザーのEmployeeをReportに登録
-        report.setEmployee(employee);
+		if (report.isCompleteFlg()) {
+			report.setSubmittedAt(now);
+		} else {
+			report.setSubmittedAt(null);
+		}
 
-        reportRepository.save(report);
+		report.setReportDeadline(report.getReportMonth().atEndOfMonth());
 
-        return ErrorKinds.SUCCESS;
+		// 月重複チェック
+		ErrorKinds result = reportDateCheck(report, employee);
+		if (ErrorKinds.CHECK_OK != result) {
+			return result;
+		}
 
-    }
+		// ログインしているユーザーのEmployeeをReportに登録
+		report.setEmployee(employee);
 
+		reportRepository.save(report);
 
-    // 月報更新
-    @Transactional
-    public ErrorKinds update(Report report) {
+		return ErrorKinds.SUCCESS;
 
-        Employee employee = report.getEmployee();
+	}
 
-        // 月重複チェック
-        ErrorKinds result = reportDateCheck(report, employee);
-        if (ErrorKinds.CHECK_OK != result) {
-            return result;
-        }
+	@Transactional
+	public Report save(ReportDto dto, Employee employee) {
+		Report report = ReportMapper.toEntity(dto, employee);
 
-        LocalDateTime now = LocalDateTime.now();
-        report.setUpdatedAt(now);
+		// 新規登録の初期化処理
+		report.setId(null);
+		report.setSubmittedAt(LocalDateTime.now());
+		report.setUpdatedAt(LocalDateTime.now());
+		report.setApprovalFlg(null);
+		report.setComment("");
 
-        if(report.isCompleteFlg()) {
-            report.setSubmittedAt(now);
-        } else {
-            report.setSubmittedAt(null);
-        }
+		// 月末日を reportDeadline に設定
+		YearMonth ym = dto.getReportMonth();
+		report.setReportDeadline(ym.atEndOfMonth());
 
-        report.setReportDeadline(report.getReportMonth().atEndOfMonth());
+		return reportRepository.save(report);
+	}
 
-        reportRepository.save(report);
-        return ErrorKinds.SUCCESS;
-    }
+	// 月報更新
+	@Transactional
+	public ErrorKinds update(Report report) {
 
-    // 月報削除
-    @Transactional
-    public void delete(String id) {
+		Employee employee = report.getEmployee();
 
-        Report report= findById(id);
-        LocalDateTime now = LocalDateTime.now();
-        report.setUpdatedAt(now);
-        report.setDeleteFlg(true);
-    }
+		// 月重複チェック
+		ErrorKinds result = reportDateCheck(report, employee);
+		if (ErrorKinds.CHECK_OK != result) {
+			return result;
+		}
 
-    // 月重複チェック
-    private ErrorKinds reportDateCheck(Report report, Employee employee) {
-        // 引数employeeの月報を取得
-        List<Report> reports = reportRepository.findByEmployee(employee);
+		LocalDateTime now = LocalDateTime.now();
+		report.setUpdatedAt(now);
 
-        if(reports != null) {
-            for(Report rep : reports) {
-                if(rep.getReportMonth().equals(report.getReportMonth())) {
-                    // TODO
-                    if(report.getId() != null) {
-                        if(report.getId().equals(rep.getId())) {
-                            // 同一idの月報の場合、月が同じでも無問題
-                            continue;
-                        }
-                    }
-                    // 同一の月報でない場合かつ同じ月の月報がある場合エラーを返す
-                    return ErrorKinds.DATECHECK_ERROR;
-                }
-            }
-        }
+		if (report.isCompleteFlg()) {
+			report.setSubmittedAt(now);
+		} else {
+			report.setSubmittedAt(null);
+		}
 
-        return ErrorKinds.CHECK_OK;
-    }
+		report.setReportDeadline(report.getReportMonth().atEndOfMonth());
 
+		reportRepository.save(report);
+		return ErrorKinds.SUCCESS;
+	}
 
-    // コメント追加
-    @Transactional
-    public void comment(String id, String comment) {
+	// 月報削除
+	@Transactional
+	public void delete(String id) {
 
-        Report report= findById(id);
-        report.setComment(comment);
+		Report report = findById(id);
+		LocalDateTime now = LocalDateTime.now();
+		report.setUpdatedAt(now);
+		report.setDeleteFlg(true);
+	}
 
-    }
+	// 月重複チェック
+	private ErrorKinds reportDateCheck(Report report, Employee employee) {
+		// 引数employeeの月報を取得
+		List<Report> reports = reportRepository.findByEmployee(employee);
 
-    // 承認/非承認処理
-    @Transactional
-    public Report approve(String id, boolean isApprove) {
+		if (reports != null) {
+			for (Report rep : reports) {
+				if (rep.getReportMonth().equals(report.getReportMonth())) {
+					// TODO
+					if (report.getId() != null) {
+						if (report.getId().equals(rep.getId())) {
+							// 同一idの月報の場合、月が同じでも無問題
+							continue;
+						}
+					}
+					// 同一の月報でない場合かつ同じ月の月報がある場合エラーを返す
+					return ErrorKinds.DATECHECK_ERROR;
+				}
+			}
+		}
 
-        Report report= findById(id);
-        report.setApprovalFlg(isApprove);
+		return ErrorKinds.CHECK_OK;
+	}
 
-        return report;
-    }
+	// コメント追加
+	@Transactional
+	public void comment(String id, String comment) {
 
+		Report report = findById(id);
+		report.setComment(comment);
+
+	}
+
+	// 承認/非承認処理
+	@Transactional
+	public Report approve(String id, boolean isApprove) {
+
+		Report report = findById(id);
+		report.setApprovalFlg(isApprove);
+
+		return report;
+	}
 
 }
