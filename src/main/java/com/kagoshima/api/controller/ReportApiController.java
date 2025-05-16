@@ -1,6 +1,5 @@
 package com.kagoshima.api.controller;
 
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -87,6 +87,35 @@ public class ReportApiController {
 		Report saved = reportService.save(dto, employee);
 
 		return ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(saved)));
+	}
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<ReportResponse> updateReport(@PathVariable String id, @RequestBody ReportDto dto,
+			@AuthenticationPrincipal UserDetail userDetail) {
+
+		// 元レポートを取得（nullチェックはservice内でも行うが、念のため）
+		Report existing = reportService.findById(id);
+		if (existing == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		// ログインユーザーを取得
+		Employee loginEmployee = userDetail.getEmployee();
+
+		// 本人 or 管理者 以外は403エラー
+		if (!existing.getEmployee().getCode().equals(loginEmployee.getCode())
+				&& loginEmployee.getRole() != Role.ADMIN) {
+			return ResponseEntity.status(403).build();
+		}
+
+		// dtoにIDをセット（URLのIDを信頼）
+		dto.setId(existing.getId());
+
+		// 更新処理を実行（EmployeeはMapper内で既存のを使用）
+		Report updated = reportService.update(dto);
+
+		// レスポンス用DTOに変換して返す
+		return ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(updated)));
 	}
 
 }

@@ -191,5 +191,42 @@ public class ReportService {
 
 		return report;
 	}
+	
+	@Transactional
+	public Report update(ReportDto dto) {
+		// IDで元のレポート取得
+		Report existing = findById(String.valueOf(dto.getId()));
+		if (existing == null) {
+			throw new IllegalArgumentException("指定されたレポートが存在しません");
+		}
+
+		// MapperでEntityを再構築（employeeは元のを使用）
+		Report report = ReportMapper.toEntity(dto, existing.getEmployee());
+
+		// 更新日時
+		report.setUpdatedAt(LocalDateTime.now());
+
+		// 完了していれば提出日時をセット、それ以外はnull
+		if (report.isCompleteFlg()) {
+			report.setSubmittedAt(LocalDateTime.now());
+		} else {
+			report.setSubmittedAt(null);
+		}
+
+		// 月末日を再設定（フロントから来てないことも想定して保険）
+		report.setReportDeadline(report.getReportMonth().atEndOfMonth());
+
+		// コメント、承認フラグなどはフロントからの入力を優先（Mapperが反映済み）
+
+		// 月重複チェック（元IDは保持されているので問題なし）
+		ErrorKinds result = reportDateCheck(report, report.getEmployee());
+		if (result != ErrorKinds.CHECK_OK) {
+			throw new RuntimeException("月重複エラー: " + result);
+		}
+
+		// 保存して返却
+		return reportRepository.save(report);
+	}
+
 
 }
