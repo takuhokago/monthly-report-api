@@ -64,7 +64,7 @@ public class ReportApiController {
 
 		// 年月リスト（降順）
 		Set<YearMonth> dateSet = allReports.stream().map(Report::getReportMonth)
-				.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.reverseOrder())));
+				.collect(Collectors.toCollection(() -> new TreeSet<YearMonth>(Comparator.reverseOrder())));
 
 		// 自身の過去レポートがあるかどうか
 		boolean isPastCheck = !reportService.findByEmployee(userDetail.getEmployee()).isEmpty();
