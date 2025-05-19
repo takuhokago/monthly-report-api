@@ -14,7 +14,7 @@ public class WebConfig {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**") // 全てのAPIに適用
-						.allowedOrigins("http://localhost:4200") // Angularの開発URL
+						.allowedOrigins("http://localhost:4200", "https://monthly-report-frontend.vercel.app")
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*")
 						.allowCredentials(true); // Cookieや認証情報を使う場合
 			}
