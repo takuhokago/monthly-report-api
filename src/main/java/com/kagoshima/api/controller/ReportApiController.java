@@ -3,6 +3,7 @@ package com.kagoshima.api.controller;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -10,12 +11,16 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kagoshima.api.dto.ReportDto;
@@ -28,6 +33,7 @@ import com.kagoshima.service.EmployeeService;
 import com.kagoshima.service.ReportService;
 import com.kagoshima.service.UserDetail;
 
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/reports")
 public class ReportApiController {
@@ -88,7 +94,7 @@ public class ReportApiController {
 
 		return ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(saved)));
 	}
-	
+
 	@PutMapping("/{id}")
 	public ResponseEntity<ReportResponse> updateReport(@PathVariable String id, @RequestBody ReportDto dto,
 			@AuthenticationPrincipal UserDetail userDetail) {
@@ -116,6 +122,25 @@ public class ReportApiController {
 
 		// レスポンス用DTOに変換して返す
 		return ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(updated)));
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteReport(@PathVariable String id) {
+		reportService.delete(id); // 論理削除を呼び出す
+		return ResponseEntity.noContent().build(); // HTTP 204 No Content を返す
+	}
+
+	@PatchMapping("/{id}/approval")
+	public ResponseEntity<ReportResponse> approveReport(@PathVariable String id, @RequestParam boolean approve) {
+		Report updated = reportService.approve(id, approve);
+		return ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(updated)));
+	}
+
+	@PatchMapping("/{id}/comment")
+	public ResponseEntity<Void> commentOnReport(@PathVariable String id, @RequestBody Map<String, String> requestBody) {
+		String comment = requestBody.get("comment");
+		reportService.comment(id, comment);
+		return ResponseEntity.noContent().build(); // 成功時は204を返す
 	}
 
 }

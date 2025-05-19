@@ -11,4 +11,5 @@ import com.kagoshima.entity.Employee.Role;
 public interface EmployeeRepository extends JpaRepository<Employee, String> {
     List<Employee> findByDepartment(Department department);
     List<Employee> findByRole(Role role);
+    boolean existsByDepartment(Department department);
 }

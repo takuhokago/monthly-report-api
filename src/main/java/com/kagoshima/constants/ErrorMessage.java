@@ -32,6 +32,8 @@ public class ErrorMessage {
                     new ArrayList<String>(Arrays.asList("deleteError", "ログイン中の従業員を削除することは出来ません")));
             // 同一日付チェック用エラーメッセージ
             put(ErrorKinds.DATECHECK_ERROR, new ArrayList<String>(Arrays.asList("reportDateError", "今月の報告書は作成済みです")));
+            // 見つからないエラーメッセージ
+            put(ErrorKinds.NOT_FOUND_ERROR, new ArrayList<String>(Arrays.asList("notFoundError", "見つかりません。")));
         }
     };
 

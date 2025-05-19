@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kagoshima.api.dto.EmployeeDto;
+import com.kagoshima.api.dto.EmployeeRequest;
 import com.kagoshima.api.mapper.EmployeeMapper;
 import com.kagoshima.constants.ErrorKinds;
 import com.kagoshima.entity.Department;
@@ -64,30 +64,38 @@ public class EmployeeService {
 	// 従業員更新
 	@Transactional
 	public ErrorKinds update(Employee employee) {
+		Employee existing = findByCode(employee.getCode());
+		if (existing == null) {
+			return ErrorKinds.NOT_FOUND_ERROR;
+		}
 
 		// パスワードチェック
-		if (employee.getPassword() == "") {
-			// 更新時、パスワードが入力されなかった場合、既存のパスワードを再度設定する
-			employee.setPassword(findByCode(employee.getCode()).getPassword());
+		if (employee.getPassword() == null || employee.getPassword().isBlank()) {
+			employee.setPassword(existing.getPassword());
 		} else {
 			ErrorKinds result = employeePasswordCheck(employee);
 			if (ErrorKinds.CHECK_OK != result) {
 				return result;
 			}
+
+			// ✅ ここで初めてパスワードをエンコードして上書き
+			employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 		}
 
 		// roleを再設定
 		if (employee.getRole() == null) {
-			employee.setRole(findByCode(employee.getCode()).getRole());
-		}
-		// reportListを再設定
-		if (reportService.findByEmployee(employee) != null) {
-			employee.setReportList(reportService.findByEmployee(employee));
+			employee.setRole(existing.getRole());
 		}
 
-		LocalDateTime now = LocalDateTime.now();
-		employee.setCreatedAt(findByCode(employee.getCode()).getCreatedAt());
-		employee.setUpdatedAt(now);
+		// reportListを再設定
+		List<Report> reports = reportService.findByEmployee(employee);
+		if (reports != null) {
+			employee.setReportList(reports);
+		}
+
+		// createdAt再設定
+		employee.setCreatedAt(existing.getCreatedAt());
+		employee.setUpdatedAt(LocalDateTime.now());
 
 		employeeRepository.save(employee);
 		return ErrorKinds.SUCCESS;
@@ -101,7 +109,11 @@ public class EmployeeService {
 		if (code.equals(userDetail.getEmployee().getCode())) {
 			return ErrorKinds.LOGINCHECK_ERROR;
 		}
+
 		Employee employee = findByCode(code);
+		if (employee == null) {
+			throw new IllegalArgumentException("指定された従業員が存在しません: code=" + code);
+		}
 		LocalDateTime now = LocalDateTime.now();
 		employee.setUpdatedAt(now);
 		employee.setDeleteFlg(true);
@@ -144,21 +156,15 @@ public class EmployeeService {
 
 	// 従業員パスワードチェック
 	private ErrorKinds employeePasswordCheck(Employee employee) {
-
-		// 従業員パスワードの半角英数字チェック処理
 		if (isHalfSizeCheckError(employee)) {
-
 			return ErrorKinds.HALFSIZE_ERROR;
 		}
 
-		// 従業員パスワードの8文字～16文字チェック処理
 		if (isOutOfRangePassword(employee)) {
-
 			return ErrorKinds.RANGECHECK_ERROR;
 		}
 
-		employee.setPassword(passwordEncoder.encode(employee.getPassword()));
-
+		// パスワードの加工（エンコード）はここで行わない
 		return ErrorKinds.CHECK_OK;
 	}
 
@@ -180,23 +186,28 @@ public class EmployeeService {
 	}
 
 	@Transactional
-	public Employee save(EmployeeDto dto) {
-		Employee employee = EmployeeMapper.toEntity(dto);
+	public Employee save(EmployeeRequest request) {
+		// リクエストDTO → エンティティ変換
+		Employee employee = EmployeeMapper.toEntity(request);
 
-		Department department = departmentRepository.findByName(dto.departmentName());
+		// 所属設定
+		Department department = departmentRepository.findByName(request.departmentName());
 		if (department == null) {
-			throw new IllegalArgumentException("指定された所属が存在しません: " + dto.departmentName());
+			throw new IllegalArgumentException("指定された所属が存在しません: " + request.departmentName());
 		}
 		employee.setDepartment(department);
-		
-		employee.setDeleteFlg(false);
 
+		// フラグとタイムスタンプ
+		employee.setDeleteFlg(false);
 		LocalDateTime now = LocalDateTime.now();
 		employee.setCreatedAt(now);
 		employee.setUpdatedAt(now);
 
-		// パスワードをBCryptでハッシュ化して保存
-		String rawPassword = dto.code(); // 仮の初期パスワード（例として従業員コード）
+		// パスワードのハッシュ化
+		String rawPassword = request.password(); // パスワードがリクエストに含まれている前提
+		if (rawPassword == null || rawPassword.isBlank()) {
+			throw new IllegalArgumentException("パスワードは必須です。");
+		}
 		String encodedPassword = passwordEncoder.encode(rawPassword);
 		employee.setPassword(encodedPassword);
 
