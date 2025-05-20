@@ -58,9 +58,9 @@ public class AuthController {
         // JWTをHttpOnly Cookieに格納
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)
-                .secure(false) // 本番は true
+                .secure(true) // 本番は true
                 .path("/")
-                .sameSite("Strict")
+                .sameSite("None")
                 .maxAge(Duration.ofHours(1))
                 .build();
 
