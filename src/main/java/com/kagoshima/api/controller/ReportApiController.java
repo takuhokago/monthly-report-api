@@ -1,5 +1,9 @@
 package com.kagoshima.api.controller;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
@@ -8,6 +12,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,8 +35,11 @@ import com.kagoshima.entity.Employee;
 import com.kagoshima.entity.Employee.Role;
 import com.kagoshima.entity.Report;
 import com.kagoshima.service.EmployeeService;
+import com.kagoshima.service.ExcelService;
 import com.kagoshima.service.ReportService;
 import com.kagoshima.service.UserDetail;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RestController
@@ -40,11 +48,14 @@ public class ReportApiController {
 
 	private final ReportService reportService;
 	private final EmployeeService employeeService;
+	private final ExcelService excelService;
 
 	@Autowired
-	public ReportApiController(ReportService reportService, EmployeeService employeeService) {
+	public ReportApiController(ReportService reportService, EmployeeService employeeService,
+			ExcelService excelService) {
 		this.reportService = reportService;
 		this.employeeService = employeeService;
+		this.excelService = excelService;
 	}
 
 	@GetMapping
@@ -150,6 +161,46 @@ public class ReportApiController {
 			return ResponseEntity.noContent().build();
 		}
 		return ResponseEntity.ok(ReportMapper.toDto(latestReport));
+	}
+
+	@PostMapping("/export")
+	public void exportReport(@RequestParam("reportId") String reportId, HttpServletResponse response,
+			@AuthenticationPrincipal UserDetail userDetail) {
+
+		try {
+			Report report = reportService.findById(reportId);
+
+			// 本人 or 管理者 以外は403
+			Employee loginEmployee = userDetail.getEmployee();
+			if (!report.getEmployee().getCode().equals(loginEmployee.getCode())
+					&& loginEmployee.getRole() != Role.ADMIN) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+				return;
+			}
+
+			Workbook workbook = excelService.createWorkbookWithReport(report);
+
+			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+			String encodedFileName = URLEncoder.encode(excelService.getFileName(report), StandardCharsets.UTF_8)
+					.replace("+", "%20");
+
+			response.setHeader("Content-Disposition",
+					"attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+
+			try (OutputStream out = response.getOutputStream()) {
+				workbook.write(out);
+			}
+			workbook.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "エクスポートに失敗しました");
+			} catch (IOException ioException) {
+				ioException.printStackTrace();
+			}
+		}
 	}
 
 }
