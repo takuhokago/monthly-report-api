@@ -191,7 +191,7 @@ public class ReportService {
 
 		return report;
 	}
-	
+
 	@Transactional
 	public Report update(ReportDto dto) {
 		// IDで元のレポート取得
@@ -228,5 +228,10 @@ public class ReportService {
 		return reportRepository.save(report);
 	}
 
+	public Report findLatestByEmployee(Employee employee) {
+		List<Report> reports = reportRepository.findByEmployee(employee);
+		return reports.stream().filter(r -> !r.isDeleteFlg()) // 論理削除されてないもの
+				.max((r1, r2) -> r1.getReportMonth().compareTo(r2.getReportMonth())).orElse(null);
+	}
 
 }

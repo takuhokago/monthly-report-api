@@ -143,4 +143,13 @@ public class ReportApiController {
 		return ResponseEntity.noContent().build(); // 成功時は204を返す
 	}
 
+	@GetMapping("/latest")
+	public ResponseEntity<ReportDto> getLatestReport(@AuthenticationPrincipal UserDetail userDetail) {
+		Report latestReport = reportService.findLatestByEmployee(userDetail.getEmployee());
+		if (latestReport == null) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok(ReportMapper.toDto(latestReport));
+	}
+
 }
