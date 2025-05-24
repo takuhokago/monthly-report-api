@@ -52,6 +52,7 @@ public class SecurityConfig {
 		config.setAllowedOrigins(List.of("http://localhost:4200", "https://monthly-report-frontend.vercel.app"));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 		config.setAllowedHeaders(List.of("*"));
+		config.setExposedHeaders(List.of("Content-Disposition"));
 		config.setAllowCredentials(true); // Cookie を使用する場合は true
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
