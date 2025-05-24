@@ -24,6 +24,7 @@ import com.kagoshima.repository.EmployeeRepository;
 import com.kagoshima.service.UserDetail;
 import com.kagoshima.util.JwtUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
@@ -99,7 +100,11 @@ public class AuthController {
     }
     
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetail userDetail) {
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetail userDetail, HttpServletRequest request) {
+    	// ↓debug用
+    	String cookieHeader = request.getHeader("Cookie");
+        System.out.println("【Cookieヘッダー】: " + cookieHeader);
+    	// ↑debug用
         if (userDetail == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未ログインです");
         }
