@@ -24,7 +24,6 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "employees")
-@SQLRestriction("delete_flg = false")
 public class Employee {
 
     public static enum Role {
