@@ -97,13 +97,16 @@ public class ReportApiController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ReportResponse> createReport(@RequestBody ReportDto dto,
-			@AuthenticationPrincipal UserDetail userDetail) {
+	public ResponseEntity<?> createReport(@RequestBody ReportDto dto, @AuthenticationPrincipal UserDetail userDetail) {
 
 		Employee employee = userDetail.getEmployee();
-		Report saved = reportService.save(dto, employee);
-
-		return ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(saved)));
+		try {
+			Report saved = reportService.save(dto, employee);
+			return ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(saved)));
+		} catch (RuntimeException ex) {
+			// エラー内容に応じてメッセージとHTTPステータスを返す
+			return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage())); // JSONで返す
+		}
 	}
 
 	@PutMapping("/{id}")

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kagoshima.api.dto.ReportDto;
 import com.kagoshima.api.mapper.ReportMapper;
 import com.kagoshima.constants.ErrorKinds;
+import com.kagoshima.constants.ErrorMessage;
 import com.kagoshima.entity.Employee;
 import com.kagoshima.entity.Report;
 import com.kagoshima.repository.ReportRepository;
@@ -108,6 +109,12 @@ public class ReportService {
 		// 月末日を reportDeadline に設定
 		YearMonth ym = dto.getReportMonth();
 		report.setReportDeadline(ym.atEndOfMonth());
+
+		// 月重複チェック
+		ErrorKinds result = reportDateCheck(report, employee);
+		if (result != ErrorKinds.CHECK_OK) {
+			throw new RuntimeException(ErrorMessage.getErrorValue(result));
+		}
 
 		return reportRepository.save(report);
 	}
