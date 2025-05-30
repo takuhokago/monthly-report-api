@@ -58,16 +58,16 @@ public class Report {
     @Length(max = 1000)
     private String contentBusiness;
 
-    // 勤務時間
+    // 勤務時間（分単位）
     @Column(nullable = false)
-    @Max(200)
+    @Max(12000)
     @Min(0)
     @NotNull
     private Integer timeWorked;
 
-    // 残業時間
+    // 残業時間（分単位）
     @Column(nullable = false)
-    @Max(200)
+    @Max(12000)
     @Min(0)
     @NotNull
     private Integer timeOver;
