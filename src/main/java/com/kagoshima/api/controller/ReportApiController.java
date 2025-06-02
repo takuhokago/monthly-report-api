@@ -66,11 +66,9 @@ public class ReportApiController {
 			// 管理者は全件取得
 			allReports = reportService.findAll();
 		} else {
-			// 一般社員は同じ部署の人たちのレポートを取得
-			List<Employee> sameDeptEmployees = employeeService
-					.findByDepartment(userDetail.getEmployee().getDepartment());
-			allReports = sameDeptEmployees.stream().flatMap(emp -> reportService.findByEmployee(emp).stream())
-					.collect(Collectors.toList());
+			// 一般社員は自分の報告書を取得
+			allReports = reportService.findByEmployee(userDetail.getEmployee());
+			
 		}
 
 		// 年月リスト（降順）
