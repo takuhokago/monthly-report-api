@@ -132,15 +132,19 @@ public class ExcelService {
 		
 		// C19
 		Cell cellC19 = row19.createCell(2);
-		if(report.getTimeWorked() != null) {
-			cellC19.setCellValue(report.getTimeWorked());
+		if (report.getTimeWorked() != null) {
+		    double timeWorkedInHours = report.getTimeWorked() / 60.0;
+		    double rounded = Math.round(timeWorkedInHours * 10.0) / 10.0; // 小数1桁に丸める
+		    cellC19.setCellValue(rounded);
 		}
 		cellC19.setCellStyle(styleCenter);
 
 		// E19
 		Cell cellE19 = row19.createCell(4);
-		if(report.getTimeOver() != null) {
-			cellE19.setCellValue(report.getTimeOver());
+		if (report.getTimeOver() != null) {
+		    double timeOverInHours = report.getTimeOver() / 60.0;
+		    double rounded = Math.round(timeOverInHours * 10.0) / 10.0; // 小数1桁に丸める
+		    cellE19.setCellValue(rounded);
 		}
 		cellE19.setCellStyle(styleCenter);
 
