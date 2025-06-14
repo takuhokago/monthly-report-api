@@ -55,7 +55,7 @@ public class DepartmentService {
 	// 削除
 	@Transactional
 	public void deleteById(String id) {
-		Department department = departmentRepository.findById(id)
+		Department department = departmentRepository.findById(Integer.valueOf(id))
 				.orElseThrow(() -> new IllegalArgumentException("指定された所属が存在しません。"));
 
 		if (employeeRepository.existsByDepartment(department)) {
@@ -72,7 +72,7 @@ public class DepartmentService {
 
 	public boolean existsById(String id) {
 		try {
-			return departmentRepository.existsById(id);
+			return departmentRepository.existsById(Integer.valueOf(id));
 		} catch (NumberFormatException e) {
 			return false; // 不正なIDは存在しないと判断
 		}

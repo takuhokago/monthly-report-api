@@ -1,5 +1,3 @@
-CREATE TABLE sample (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(100),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- V2__alter_sample_table.sql にリネームして中身を以下に変更
+ALTER TABLE sample
+  ADD created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;

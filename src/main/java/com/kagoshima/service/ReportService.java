@@ -36,7 +36,7 @@ public class ReportService {
 	// idでレポートを検索
 	public Report findById(String id) {
 		// findByIdで検索
-		Optional<Report> option = reportRepository.findById(id);
+		Optional<Report> option = reportRepository.findById(Integer.valueOf(id));
 		// 取得できなかった場合はnullを返す
 		Report report = option.orElse(null);
 		return report;
