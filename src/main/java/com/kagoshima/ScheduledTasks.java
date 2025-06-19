@@ -17,6 +17,8 @@ import com.kagoshima.service.EmailService;
 import com.kagoshima.service.EmployeeService;
 import com.kagoshima.service.ReportService;
 
+import jakarta.annotation.PostConstruct;
+
 @Component
 public class ScheduledTasks {
 
@@ -33,11 +35,12 @@ public class ScheduledTasks {
         this.messageSource = messageSource;
     }
 
-    @Scheduled(cron = "0 0 0 27-31 * ?")
+//    @Scheduled(cron = "0 0 0 27-31 * ?")
+    @PostConstruct
     public void performTask() {
-    	if(!isPreviousDayOfDeadline()) {
-    		return;
-    	}
+//    	if(!isPreviousDayOfDeadline()) {
+//    		return;
+//    	}
     	
         ArrayList<Employee> toList = new ArrayList<>();
 
@@ -49,7 +52,7 @@ public class ScheduledTasks {
                 currentReport = reports.stream().max((r1, r2) -> r1.getReportMonth().compareTo(r2.getReportMonth())).get();
             }
 
-            if(currentReport != null && !checkCurrentReportCompleted(currentReport)) {
+            if(currentReport == null || !checkCurrentReportCompleted(currentReport)) {
                 toList.add(employee);
             }
         }
