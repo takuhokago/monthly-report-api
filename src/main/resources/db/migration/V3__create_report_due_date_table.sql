@@ -1,0 +1,5 @@
+CREATE TABLE report_due_date (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  yearmonth VARCHAR(7) NOT NULL UNIQUE,
+  due_date DATETIME DEFAULT NULL
+);
