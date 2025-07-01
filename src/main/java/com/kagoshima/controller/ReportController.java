@@ -167,38 +167,38 @@ public class ReportController {
 		return "reports/detail";
 	}
 
-	// エクセル出力
-	@PostMapping(value = "/export")
-	public void export(@RequestParam("reportId") String reportId, HttpServletResponse response) {
-		try {
-			Report report = reportService.findById(reportId);
-
-			// 書き込み
-			Workbook workbook = excelService.createWorkbookWithReport(report);
-
-			// レスポンス設定
-			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			// ファイル名を UTF-8 でエンコード（スペースや特殊文字も安全に処理）
-			String encodedFileName = URLEncoder.encode(excelService.getFileName(report), StandardCharsets.UTF_8).replace("+", "%20");
-
-			// Content-Disposition ヘッダーを設定
-			response.setHeader("Content-Disposition",
-					"attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
-
-			// ファイルを書き込んでユーザーにダウンロードさせる
-			OutputStream out = response.getOutputStream();
-			workbook.write(out);
-			out.close();
-			workbook.close();
-
-		} catch (FileNotFoundException e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
-		}
-	}
+//	// エクセル出力
+//	@PostMapping(value = "/export")
+//	public void export(@RequestParam("reportId") String reportId, HttpServletResponse response) {
+//		try {
+//			Report report = reportService.findById(reportId);
+//
+//			// 書き込み
+//			Workbook workbook = excelService.createWorkbookWithReport(report);
+//
+//			// レスポンス設定
+//			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//			// ファイル名を UTF-8 でエンコード（スペースや特殊文字も安全に処理）
+//			String encodedFileName = URLEncoder.encode(excelService.getFileName(report), StandardCharsets.UTF_8).replace("+", "%20");
+//
+//			// Content-Disposition ヘッダーを設定
+//			response.setHeader("Content-Disposition",
+//					"attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+//
+//			// ファイルを書き込んでユーザーにダウンロードさせる
+//			OutputStream out = response.getOutputStream();
+//			workbook.write(out);
+//			out.close();
+//			workbook.close();
+//
+//		} catch (FileNotFoundException e) {
+//			// TODO 自動生成された catch ブロック
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO 自動生成された catch ブロック
+//			e.printStackTrace();
+//		}
+//	}
 
 	// 月報更新画面
 	@GetMapping(value = "/update/{id}/")

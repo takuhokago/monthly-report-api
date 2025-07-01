@@ -240,5 +240,42 @@ public class ReportService {
 		return reports.stream().filter(r -> !r.isDeleteFlg()) // 論理削除されてないもの
 				.max((r1, r2) -> r1.getReportMonth().compareTo(r2.getReportMonth())).orElse(null);
 	}
+	
+	/*
+	 * {reportId}のReportを起点に直近{months}か月分のReportリストを返す。
+	 */
+	public List<Report> getLatestReports(String reportId, int months) {
+	    Report currentReport = findById(reportId);
+	    if (currentReport == null || months <= 0) {
+	        return new ArrayList<>();
+	    }
+
+	    Employee employee = currentReport.getEmployee();
+	    List<Report> allReports = reportRepository.findByEmployee(employee);
+
+	    // 論理削除されていないレポートのみ対象
+	    List<Report> activeReports = allReports.stream()
+	        .filter(r -> !r.isDeleteFlg())
+	        .toList();
+
+	    YearMonth baseMonth = currentReport.getReportMonth();
+	    List<YearMonth> targetMonths = new ArrayList<>();
+	    for (int i = months - 1; i >= 0; i--) {
+	        targetMonths.add(baseMonth.minusMonths(i));
+	    }
+
+	    List<Report> result = new ArrayList<>();
+	    for (YearMonth ym : targetMonths) {
+	        for (Report r : activeReports) {
+	            if (r.getReportMonth().equals(ym)) {
+	                result.add(r);
+	                break; // 同じ月の中で1件だけ
+	            }
+	        }
+	    }
+
+	    return result;
+	}
+
 
 }

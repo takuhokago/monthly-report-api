@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -46,16 +47,19 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/api/reports")
 public class ReportApiController {
 
+	private final AuthController authController;
+
 	private final ReportService reportService;
 	private final EmployeeService employeeService;
 	private final ExcelService excelService;
 
 	@Autowired
-	public ReportApiController(ReportService reportService, EmployeeService employeeService,
-			ExcelService excelService) {
+	public ReportApiController(ReportService reportService, EmployeeService employeeService, ExcelService excelService,
+			AuthController authController) {
 		this.reportService = reportService;
 		this.employeeService = employeeService;
 		this.excelService = excelService;
+		this.authController = authController;
 	}
 
 	@GetMapping
@@ -68,7 +72,7 @@ public class ReportApiController {
 		} else {
 			// 一般社員は自分の報告書を取得
 			allReports = reportService.findByEmployee(userDetail.getEmployee());
-			
+
 		}
 
 		// 年月リスト（降順）
@@ -179,7 +183,9 @@ public class ReportApiController {
 				return;
 			}
 
-			Workbook workbook = excelService.createWorkbookWithReport(report);
+			List<Report> reportList = reportService.getLatestReports(reportId, 3);
+
+			Workbook workbook = excelService.createWorkbookWithReport(reportList);
 
 			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
