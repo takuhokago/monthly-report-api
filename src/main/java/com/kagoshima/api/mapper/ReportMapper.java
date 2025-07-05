@@ -3,6 +3,7 @@ package com.kagoshima.api.mapper;
 import com.kagoshima.api.dto.ReportDto;
 import com.kagoshima.entity.Employee;
 import com.kagoshima.entity.Report;
+import com.kagoshima.entity.ReportDueDate;
 
 public class ReportMapper {
 
@@ -30,16 +31,18 @@ public class ReportMapper {
 		dto.setContentOthers(report.getContentOthers());
 		dto.setCompleteFlg(report.isCompleteFlg());
 		dto.setComment(report.getComment());
-		dto.setReportDeadline(report.getReportDeadline());
 		dto.setApprovalFlg(report.getApprovalFlg());
 		dto.setEmployeeCode(report.getEmployee().getCode());
 		dto.setEmployeeName(report.getEmployee().getLastName() + " " + report.getEmployee().getFirstName());
 		dto.setDepartmentName(report.getEmployee().getDepartment().getName());
+		if (report.getDueDate() != null) {
+			dto.setDueDate(report.getDueDate().getDueDate());
+		}
 		return dto;
 	}
 
 	/** DTO → Entity 変換（更新や保存時に利用） */
-	public static Report toEntity(ReportDto dto, Employee employee) {
+	public static Report toEntity(ReportDto dto, Employee employee, ReportDueDate dueDate) {
 		Report report = new Report();
 		report.setId(dto.getId());
 		report.setReportMonth(dto.getReportMonth());
@@ -62,11 +65,11 @@ public class ReportMapper {
 		report.setContentOthers(dto.getContentOthers());
 		report.setCompleteFlg(dto.isCompleteFlg());
 		report.setComment(dto.getComment());
-		if (dto.getReportDeadline() != null) {
-			report.setReportDeadline(dto.getReportDeadline());
-		}
 		report.setApprovalFlg(dto.getApprovalFlg());
 		report.setEmployee(employee);
+		if (dueDate != null) {
+			report.setDueDate(dueDate);
+		}
 		return report;
 	}
 }

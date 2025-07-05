@@ -1,6 +1,7 @@
 package com.kagoshima;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +14,11 @@ import org.springframework.stereotype.Component;
 
 import com.kagoshima.entity.Employee;
 import com.kagoshima.entity.Report;
+import com.kagoshima.entity.ReportDueDate;
 import com.kagoshima.service.EmailService;
 import com.kagoshima.service.EmployeeService;
+import com.kagoshima.service.ReportDueDateService;
 import com.kagoshima.service.ReportService;
-
-import jakarta.annotation.PostConstruct;
 
 @Component
 public class ScheduledTasks {
@@ -26,19 +27,21 @@ public class ScheduledTasks {
 	private final ReportService reportService;
 	private final EmployeeService employeeService;
 	private final MessageSource messageSource;
+	private final ReportDueDateService reportDueDateService;
 
 	@Autowired
 	public ScheduledTasks(EmailService emailService, ReportService reportService, EmployeeService employeeService,
-			MessageSource messageSource) {
+			MessageSource messageSource, ReportDueDateService reportDueDateService) {
 		this.emailService = emailService;
 		this.reportService = reportService;
 		this.employeeService = employeeService;
 		this.messageSource = messageSource;
+		this.reportDueDateService = reportDueDateService;
 	}
 
-	@Scheduled(cron = "0 0 0 27-31 * ?")
+	@Scheduled(cron = "0 * * * * ?")
 	public void performTask() {
-		if (!isPreviousDayOfDeadline()) {
+		if (!isDueDateExactlyNow()) {
 			return;
 		}
 
@@ -47,13 +50,8 @@ public class ScheduledTasks {
 		List<Employee> generalEmployees = employeeService.findByRole(Employee.Role.GENERAL);
 		for (Employee employee : generalEmployees) {
 			List<Report> reports = reportService.findByEmployee(employee);
-			Report currentReport = null;
-			if (reports != null && !reports.isEmpty()) {
-				currentReport = reports.stream().max((r1, r2) -> r1.getReportMonth().compareTo(r2.getReportMonth()))
-						.get();
-			}
 
-			if (currentReport == null || !checkCurrentReportCompleted(currentReport)) {
+			if (reports == null || !isReportCreated(reports)) {
 				toList.add(employee);
 			}
 		}
@@ -72,25 +70,24 @@ public class ScheduledTasks {
 	}
 
 	// 当月分の報告書が作成済みか
-	private boolean checkCurrentReportCompleted(Report report) {
-		boolean isCurrent = false;
-		boolean isCompleted = false;
-
+	private boolean isReportCreated(List<Report> reports) {
 		YearMonth currentMonth = YearMonth.now();
-		isCurrent = currentMonth.equals(report.getReportMonth());
-
-		isCompleted = report.isCompleteFlg();
-
-		return isCurrent && isCompleted;
+		return reports.stream().anyMatch(report -> currentMonth.equals(report.getReportMonth()));
 	}
 
-	// 提出期日（月末）の前日であるか
-	private boolean isPreviousDayOfDeadline() {
-		LocalDate now = LocalDate.now();
+	private boolean isDueDateExactlyNow() {
+		LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0); // 秒とナノ秒を切り捨てる
 		YearMonth yearMonth = YearMonth.of(now.getYear(), now.getMonth());
-		LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
-		boolean isPreviousDayOfDeadline = now.equals(lastDayOfMonth);
-		return isPreviousDayOfDeadline;
+		ReportDueDate reportDueDate = reportDueDateService.findByYearMonth(yearMonth).orElse(null);
+
+		if (reportDueDate != null) {
+			LocalDateTime dueDate = reportDueDate.getDueDate().withSecond(0).withNano(0);
+			return now.equals(dueDate);
+		} else {
+			LocalDate endOfMonth = yearMonth.atEndOfMonth();
+			LocalDateTime defaultDueDate = endOfMonth.atTime(18, 0);
+			return now.equals(defaultDueDate);
+		}
 	}
 
 }

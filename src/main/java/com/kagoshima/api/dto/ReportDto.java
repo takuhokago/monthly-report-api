@@ -34,4 +34,5 @@ public class ReportDto {
     private String employeeCode;
     private String employeeName; // オプション：フロントで表示用に便利
     private String departmentName; // オプション：フロントで表示用に便利
+    private LocalDateTime dueDate; // フロント表示用
 }

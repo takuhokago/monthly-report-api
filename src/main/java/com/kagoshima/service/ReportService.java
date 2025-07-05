@@ -16,16 +16,19 @@ import com.kagoshima.constants.ErrorKinds;
 import com.kagoshima.constants.ErrorMessage;
 import com.kagoshima.entity.Employee;
 import com.kagoshima.entity.Report;
+import com.kagoshima.entity.ReportDueDate;
 import com.kagoshima.repository.ReportRepository;
 
 @Service
 public class ReportService {
 
 	private final ReportRepository reportRepository;
+	private final ReportDueDateService reportDueDateService;
 
 	@Autowired
-	public ReportService(ReportRepository reportRepository) {
+	public ReportService(ReportRepository reportRepository, ReportDueDateService reportDueDateService) {
 		this.reportRepository = reportRepository;
+		this.reportDueDateService = reportDueDateService;
 	}
 
 	// 月報一覧表示処理
@@ -97,7 +100,12 @@ public class ReportService {
 
 	@Transactional
 	public Report save(ReportDto dto, Employee employee) {
-		Report report = ReportMapper.toEntity(dto, employee);
+		// 提出期日を設定する
+		YearMonth yearMonth = dto.getReportMonth();
+		ReportDueDate reportDueDate = reportDueDateService.findByYearMonth(yearMonth).orElse(null);
+
+		// DBに保存するreportを生成
+		Report report = ReportMapper.toEntity(dto, employee, reportDueDate);
 
 		// 新規登録の初期化処理
 		report.setId(null);
@@ -207,8 +215,11 @@ public class ReportService {
 			throw new IllegalArgumentException("指定されたレポートが存在しません");
 		}
 
+		// 提出期日を更新
+		ReportDueDate dueDate = reportDueDateService.findByYearMonth(dto.getReportMonth()).orElse(null);
+
 		// MapperでEntityを再構築（employeeは元のを使用）
-		Report report = ReportMapper.toEntity(dto, existing.getEmployee());
+		Report report = ReportMapper.toEntity(dto, existing.getEmployee(), dueDate);
 
 		// 更新日時
 		report.setUpdatedAt(LocalDateTime.now());
@@ -240,42 +251,39 @@ public class ReportService {
 		return reports.stream().filter(r -> !r.isDeleteFlg()) // 論理削除されてないもの
 				.max((r1, r2) -> r1.getReportMonth().compareTo(r2.getReportMonth())).orElse(null);
 	}
-	
+
 	/*
 	 * {reportId}のReportを起点に直近{months}か月分のReportリストを返す。
 	 */
 	public List<Report> getLatestReports(String reportId, int months) {
-	    Report currentReport = findById(reportId);
-	    if (currentReport == null || months <= 0) {
-	        return new ArrayList<>();
-	    }
+		Report currentReport = findById(reportId);
+		if (currentReport == null || months <= 0) {
+			return new ArrayList<>();
+		}
 
-	    Employee employee = currentReport.getEmployee();
-	    List<Report> allReports = reportRepository.findByEmployee(employee);
+		Employee employee = currentReport.getEmployee();
+		List<Report> allReports = reportRepository.findByEmployee(employee);
 
-	    // 論理削除されていないレポートのみ対象
-	    List<Report> activeReports = allReports.stream()
-	        .filter(r -> !r.isDeleteFlg())
-	        .toList();
+		// 論理削除されていないレポートのみ対象
+		List<Report> activeReports = allReports.stream().filter(r -> !r.isDeleteFlg()).toList();
 
-	    YearMonth baseMonth = currentReport.getReportMonth();
-	    List<YearMonth> targetMonths = new ArrayList<>();
-	    for (int i = months - 1; i >= 0; i--) {
-	        targetMonths.add(baseMonth.minusMonths(i));
-	    }
+		YearMonth baseMonth = currentReport.getReportMonth();
+		List<YearMonth> targetMonths = new ArrayList<>();
+		for (int i = months - 1; i >= 0; i--) {
+			targetMonths.add(baseMonth.minusMonths(i));
+		}
 
-	    List<Report> result = new ArrayList<>();
-	    for (YearMonth ym : targetMonths) {
-	        for (Report r : activeReports) {
-	            if (r.getReportMonth().equals(ym)) {
-	                result.add(r);
-	                break; // 同じ月の中で1件だけ
-	            }
-	        }
-	    }
+		List<Report> result = new ArrayList<>();
+		for (YearMonth ym : targetMonths) {
+			for (Report r : activeReports) {
+				if (r.getReportMonth().equals(ym)) {
+					result.add(r);
+					break; // 同じ月の中で1件だけ
+				}
+			}
+		}
 
-	    return result;
+		return result;
 	}
-
 
 }

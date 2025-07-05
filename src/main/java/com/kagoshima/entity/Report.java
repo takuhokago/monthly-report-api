@@ -158,6 +158,11 @@ public class Report {
     // 承認フラグ
     @Column(columnDefinition = "TINYINT")
     private Boolean approvalFlg;
+    
+    // 提出期日
+    @ManyToOne(optional = true) // null許可
+    @JoinColumn(name = "due_date_id", referencedColumnName = "id", nullable = true)
+    private ReportDueDate dueDate;
 
     // コンストラクタで初期値設定
     public Report() {
