@@ -1,8 +1,11 @@
 package com.kagoshima.api.controller;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kagoshima.api.dto.ReportDueDateDto;
@@ -71,6 +75,22 @@ public class ReportDueDateApiController {
 			return ResponseEntity.ok(updatedDtoList);
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+		}
+	}
+
+	// 指定した年月の提出期日の日時を返す
+	@GetMapping("/due-date")
+	public ResponseEntity<LocalDateTime> getDueDateByYearMonth(@RequestParam String yearMonth) {
+		// 例: "2025-07" → YearMonth に変換
+		YearMonth ym = YearMonth.parse(yearMonth);
+		Optional<ReportDueDate> optional = reportDueDateService.findByYearMonth(ym);
+
+		if (optional.isPresent()) {
+			return ResponseEntity.ok(optional.get().getDueDate());
+		} else {
+			// 期日未設定の場合は月末18:00を返す
+			LocalDateTime defaultDueDate = ym.atEndOfMonth().atTime(18, 0);
+			return ResponseEntity.ok(defaultDueDate);
 		}
 	}
 
