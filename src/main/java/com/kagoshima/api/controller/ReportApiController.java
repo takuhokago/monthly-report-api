@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -208,6 +208,15 @@ public class ReportApiController {
 				ioException.printStackTrace();
 			}
 		}
+	}
+
+	@GetMapping("/{id}/month/{yearMonth}")
+	public ResponseEntity<ReportResponse> getReportByYearMonth(@PathVariable String id,
+			@PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
+
+		return reportService.getReportByYM(id, yearMonth)
+				.map(report -> ResponseEntity.ok(new ReportResponse(ReportMapper.toDto(report))))
+				.orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
 }

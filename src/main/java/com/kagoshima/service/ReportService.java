@@ -286,4 +286,14 @@ public class ReportService {
 		return result;
 	}
 
+	/**
+	 * 指定した年月の報告書を取得する。 引数の報告書と同じ作成者が対象。
+	 */
+	public Optional<Report> getReportByYM(String reportId, YearMonth ym) {
+		Report baseReport = findById(reportId);
+		Employee employee = baseReport.getEmployee();
+
+		return reportRepository.findByEmployeeAndReportMonth(employee, ym);
+	}
+
 }
