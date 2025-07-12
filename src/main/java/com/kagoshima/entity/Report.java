@@ -55,7 +55,7 @@ public class Report {
 
     // 業務内容
     @Column(columnDefinition = "LONGTEXT")
-    @Length(max = 1000)
+    @Length(max = 1500)
     private String contentBusiness;
 
     // 勤務時間（分単位）
