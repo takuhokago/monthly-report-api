@@ -331,7 +331,7 @@ public class ExcelService {
 	 */
 	private void copyFixedRange(Sheet source, Sheet target) {
 		int startRow = 0;
-		int endRow = 78;
+		int endRow = 110;
 		int startCol = 0;
 		int endCol = 12;
 
