@@ -148,135 +148,57 @@ public class ExcelService {
 		}
 		cellC8.setCellStyle(styleBorderTop);
 
-		// 19行目
-		Row row19 = sheet.getRow(18);
-		if (row19 == null) {
-			row19 = sheet.createRow(18);
+		// 40行目
+		Row row40 = sheet.getRow(39);
+		if (row40 == null) {
+			row40 = sheet.createRow(39);
 		}
 
-		// C19
-		Cell cellC19 = row19.createCell(2);
+		// C40
+		Cell cellC40 = row40.createCell(2);
 		if (report.getTimeWorked() != null) {
 			double timeWorkedInHours = report.getTimeWorked() / 60.0;
 			double rounded = Math.round(timeWorkedInHours * 10.0) / 10.0; // 小数1桁に丸める
-			cellC19.setCellValue(rounded);
+			cellC40.setCellValue(rounded);
 		}
-		cellC19.setCellStyle(styleCenter);
+		cellC40.setCellStyle(styleCenter);
 
-		// E19
-		Cell cellE19 = row19.createCell(4);
+		// E40
+		Cell cellE40 = row40.createCell(4);
 		if (report.getTimeOver() != null) {
 			double timeOverInHours = report.getTimeOver() / 60.0;
 			double rounded = Math.round(timeOverInHours * 10.0) / 10.0; // 小数1桁に丸める
-			cellE19.setCellValue(rounded);
+			cellE40.setCellValue(rounded);
 		}
-		cellE19.setCellStyle(styleCenter);
+		cellE40.setCellStyle(styleCenter);
 
-		// G19
-		Cell cellG19 = row19.createCell(6);
+		// G40
+		Cell cellG40 = row40.createCell(6);
 		Integer rateBusiness = Optional.ofNullable(report.getRateBusiness()).orElse(-999);
 		Integer rateStudy = Optional.ofNullable(report.getRateStudy()).orElse(-999);
 		String rate = rateBusiness + " / " + rateStudy;
-		cellG19.setCellValue(rate);
-		cellG19.setCellStyle(styleCenter);
+		cellG40.setCellValue(rate);
+		cellG40.setCellStyle(styleCenter);
 
-		// J19
-		Cell cellJ19 = row19.createCell(9);
+		// J40
+		Cell cellJ40 = row40.createCell(9);
 		if (report.getTrendBusiness() != null) {
-			cellJ19.setCellValue(report.getTrendBusiness());
+			cellJ40.setCellValue(report.getTrendBusiness());
 		}
-		cellJ19.setCellStyle(styleCenter);
+		cellJ40.setCellStyle(styleCenter);
 
-		// 20行目
-		Row row20 = sheet.getRow(19);
-		if (row20 == null) {
-			row20 = sheet.createRow(19);
+		// 41行目
+		Row row41 = sheet.getRow(40);
+		if (row41 == null) {
+			row41 = sheet.createRow(40);
 		}
 
-		// C20
-		Cell cellC20 = row20.createCell(2);
+		// C41
+		Cell cellC41 = row41.createCell(2);
 		if (report.getContentMember() != null) {
-			cellC20.setCellValue(report.getContentMember());
+			cellC41.setCellValue(report.getContentMember());
 		}
-		cellC20.setCellStyle(styleBorderTop);
-
-		// 31行目
-		Row row31 = sheet.getRow(30);
-		if (row31 == null) {
-			row31 = sheet.createRow(30);
-		}
-
-		// C31
-		Cell cellC31 = row31.createCell(2);
-		if (report.getContentCustomer() != null) {
-			cellC31.setCellValue(report.getContentCustomer());
-		}
-		cellC31.setCellStyle(style);
-
-		// 39行目
-		Row row39 = sheet.getRow(38);
-		if (row39 == null) {
-			row39 = sheet.createRow(38);
-		}
-
-		// C39
-		Cell cellC39 = row39.createCell(2);
-		if (report.getContentProblem() != null) {
-			cellC39.setCellValue(report.getContentProblem());
-		}
-		cellC39.setCellStyle(style);
-
-		// 50行目
-		Row row50 = sheet.getRow(49);
-		if (row50 == null) {
-			row50 = sheet.createRow(49);
-		}
-
-		// D50
-		Cell cellD50 = row50.createCell(3);
-		if (report.getEvaluationBusiness() != null) {
-			cellD50.setCellValue(report.getEvaluationBusiness());
-		}
-		cellD50.setCellStyle(style);
-
-		// 53行目
-		Row row53 = sheet.getRow(52);
-		if (row53 == null) {
-			row53 = sheet.createRow(52);
-		}
-
-		// D53
-		Cell cellD53 = row53.createCell(3);
-		if (report.getEvaluationStudy() != null) {
-			cellD53.setCellValue(report.getEvaluationStudy());
-		}
-		cellD53.setCellStyle(style);
-
-		// 56行目
-		Row row56 = sheet.getRow(55);
-		if (row56 == null) {
-			row56 = sheet.createRow(55);
-		}
-
-		// D56
-		Cell cellD56 = row56.createCell(3);
-		if (report.getGoalBusiness() != null) {
-			cellD56.setCellValue(report.getGoalBusiness());
-		}
-		cellD56.setCellStyle(style);
-
-		// 59行目
-		Row row59 = sheet.getRow(58);
-		if (row59 == null) {
-			row59 = sheet.createRow(58);
-		}
-
-		// D59
-		Cell cellD59 = row59.createCell(3);
-		if (report.getGoalStudy() != null) {
-			cellD59.setCellValue(report.getGoalStudy());
-		}
-		cellD59.setCellStyle(style);
+		cellC41.setCellStyle(styleBorderTop);
 
 		// 62行目
 		Row row62 = sheet.getRow(61);
@@ -286,23 +208,101 @@ public class ExcelService {
 
 		// C62
 		Cell cellC62 = row62.createCell(2);
-		if (report.getContentCompany() != null) {
-			cellC62.setCellValue(report.getContentCompany());
+		if (report.getContentCustomer() != null) {
+			cellC62.setCellValue(report.getContentCustomer());
 		}
 		cellC62.setCellStyle(style);
 
-		// 68行目
-		Row row68 = sheet.getRow(67);
-		if (row68 == null) {
-			row68 = sheet.createRow(67);
+		// 70行目
+		Row row70 = sheet.getRow(69);
+		if (row70 == null) {
+			row70 = sheet.createRow(69);
 		}
 
-		// C68
-		Cell cellC68 = row68.createCell(2);
-		if (report.getContentOthers() != null) {
-			cellC68.setCellValue(report.getContentOthers());
+		// C70
+		Cell cellC70 = row70.createCell(2);
+		if (report.getContentProblem() != null) {
+			cellC70.setCellValue(report.getContentProblem());
 		}
-		cellC68.setCellStyle(style);
+		cellC70.setCellStyle(style);
+
+		// 81行目
+		Row row81 = sheet.getRow(80);
+		if (row81 == null) {
+			row81 = sheet.createRow(80);
+		}
+
+		// D81
+		Cell cellD81 = row81.createCell(3);
+		if (report.getEvaluationBusiness() != null) {
+			cellD81.setCellValue(report.getEvaluationBusiness());
+		}
+		cellD81.setCellStyle(style);
+
+		// 84行目
+		Row row84 = sheet.getRow(83);
+		if (row84 == null) {
+			row84 = sheet.createRow(83);
+		}
+
+		// D84
+		Cell cellD84 = row84.createCell(3);
+		if (report.getEvaluationStudy() != null) {
+			cellD84.setCellValue(report.getEvaluationStudy());
+		}
+		cellD84.setCellStyle(style);
+
+		// 87行目
+		Row row87 = sheet.getRow(86);
+		if (row87 == null) {
+			row87 = sheet.createRow(86);
+		}
+
+		// D87
+		Cell cellD87 = row87.createCell(3);
+		if (report.getGoalBusiness() != null) {
+			cellD87.setCellValue(report.getGoalBusiness());
+		}
+		cellD87.setCellStyle(style);
+
+		// 90行目
+		Row row90 = sheet.getRow(89);
+		if (row90 == null) {
+			row90 = sheet.createRow(89);
+		}
+
+		// D90
+		Cell cellD90 = row90.createCell(3);
+		if (report.getGoalStudy() != null) {
+			cellD90.setCellValue(report.getGoalStudy());
+		}
+		cellD90.setCellStyle(style);
+
+		// 93行目
+		Row row93 = sheet.getRow(92);
+		if (row93 == null) {
+			row93 = sheet.createRow(92);
+		}
+
+		// C93
+		Cell cellC93 = row93.createCell(2);
+		if (report.getContentCompany() != null) {
+			cellC93.setCellValue(report.getContentCompany());
+		}
+		cellC93.setCellStyle(style);
+
+		// 99行目
+		Row row99 = sheet.getRow(98);
+		if (row99 == null) {
+			row99 = sheet.createRow(98);
+		}
+
+		// C99
+		Cell cellC99 = row99.createCell(2);
+		if (report.getContentOthers() != null) {
+			cellC99.setCellValue(report.getContentOthers());
+		}
+		cellC99.setCellStyle(style);
 
 	}
 
