@@ -55,7 +55,7 @@ public class Report {
 
     // 業務内容
     @Column(columnDefinition = "LONGTEXT")
-    @Length(max = 1500)
+    @Length(max = 2000)
     private String contentBusiness;
 
     // 勤務時間（分単位）
@@ -95,7 +95,7 @@ public class Report {
 
     // その他メンバー関連内容
     @Column(columnDefinition = "LONGTEXT")
-    @Length(max = 800)
+    @Length(max = 1500)
     private String contentMember;
 
     // お客様情報
