@@ -56,18 +56,33 @@ public class ExcelService {
 		for (int i = 0; i < reportList.size(); i++) {
 			// 書き込むReportの取得
 			Report report = reportList.get(i);
+			
+			// 書き込み対象のシートを作成する
+			Sheet writeSheet =  workbook.createSheet("WriteSheet" + i);
+			
 			// シート名を更新
 			String sheetName = report.getReportMonth().format(DateTimeFormatter.ofPattern("yyyyMM")) + "業務報告";
-			workbook.setSheetName(3 + i, sheetName);
-			// 書き込み先シートの取得
-			Sheet sheet = workbook.getSheetAt(3 + i);
+			workbook.setSheetName(5 + i, sheetName);
+			
+			// 大小どちらのテンプレートを使用するか判定
+			boolean useLargeTemplate = report.getContentBusiness().length() > 1000;
+			
+			// テンプレートをコピーする
+			if(useLargeTemplate) {
+				Sheet template = workbook.getSheetAt(3);
+				copyFixedRange(template, writeSheet);
+			} else {
+				Sheet template = workbook.getSheetAt(4);
+				copyFixedRange(template, writeSheet);
+			}
+			
 			// セルにデータの書き込み
-			writeData(sheet, report);
-
-			if (i != reportList.size() - 1) {
-				// 次のReport用のシートを作成する
-				Sheet copiedSheet = workbook.createSheet("CopiedSheet" + i);
-				copyFixedRange(sheet, copiedSheet);
+			writeData(writeSheet, report);
+			
+			// 最後にテンプレートは削除する
+			if(i == reportList.size() - 1) {
+				workbook.removeSheetAt(4);
+				workbook.removeSheetAt(3);
 			}
 		}
 

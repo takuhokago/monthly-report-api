@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.YearMonth;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -184,7 +185,7 @@ public class ReportApiController {
 			}
 
 			List<Report> reportList = reportService.getLatestReports(reportId, 3);
-
+			Collections.reverse(reportList);
 			Workbook workbook = excelService.createWorkbookWithReport(reportList);
 
 			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
