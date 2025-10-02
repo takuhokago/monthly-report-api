@@ -16,7 +16,7 @@ public class JwtUtil {
 
 	private static final String SECRET_KEY = "uLCw4U4l9FCXYn3TS3kI1pNLnZxcy3vC9PQjdfvGyYw="; // 32文字以上
 
-	private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1時間
+	private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 8; // 一旦8時間
 
 	private Key getSigningKey() {
 	    byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
