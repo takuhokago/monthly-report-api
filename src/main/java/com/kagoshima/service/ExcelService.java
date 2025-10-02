@@ -61,18 +61,30 @@ public class ExcelService {
 			Sheet writeSheet =  workbook.createSheet("WriteSheet" + i);
 			
 			// シート名を更新
+			final int startSheetIndex = 7;
 			String sheetName = report.getReportMonth().format(DateTimeFormatter.ofPattern("yyyyMM")) + "業務報告";
-			workbook.setSheetName(5 + i, sheetName);
+			workbook.setSheetName(startSheetIndex + i, sheetName);
 			
 			// 大小どちらのテンプレートを使用するか判定
-			boolean useLargeTemplate = report.getContentBusiness().length() > 1000;
+			boolean isLargeContentBusiness= report.getContentBusiness().length() > 700;
+			boolean isLargeContentMember= report.getContentMember().length() > 500;
 			
 			// テンプレートをコピーする
-			if(useLargeTemplate) {
-				Sheet template = workbook.getSheetAt(3);
+			final int largeLargeIndex = 3;
+			final int smallSmallIndex = 4;
+			final int largeSmallIndex = 5;
+			final int smallLargeIndex = 6;
+			if(isLargeContentBusiness && isLargeContentMember) {
+				Sheet template = workbook.getSheetAt(largeLargeIndex);
+				copyFixedRange(template, writeSheet);
+			} else if(!isLargeContentBusiness && !isLargeContentMember) {
+				Sheet template = workbook.getSheetAt(smallSmallIndex);
+				copyFixedRange(template, writeSheet);
+			} else if(isLargeContentBusiness) {
+				Sheet template = workbook.getSheetAt(largeSmallIndex);
 				copyFixedRange(template, writeSheet);
 			} else {
-				Sheet template = workbook.getSheetAt(4);
+				Sheet template = workbook.getSheetAt(smallLargeIndex);
 				copyFixedRange(template, writeSheet);
 			}
 			
@@ -81,8 +93,10 @@ public class ExcelService {
 			
 			// 最後にテンプレートは削除する
 			if(i == reportList.size() - 1) {
-				workbook.removeSheetAt(4);
-				workbook.removeSheetAt(3);
+				workbook.removeSheetAt(smallLargeIndex);
+				workbook.removeSheetAt(largeSmallIndex);
+				workbook.removeSheetAt(smallSmallIndex);
+				workbook.removeSheetAt(largeLargeIndex);
 			}
 		}
 
