@@ -51,53 +51,6 @@ public class ReportService {
 		return reports;
 	}
 
-	// 指定月の報告書を返す
-	public List<Report> getSpecifiedMonthReport(List<Report> reportList, YearMonth yearMonth) {
-		List<Report> specigiedMonthReport = new ArrayList<Report>();
-		if (yearMonth == null) {
-			return specigiedMonthReport;
-		}
-		for (Report report : reportList) {
-			if (report.getReportMonth().equals(yearMonth)) {
-				specigiedMonthReport.add(report);
-			}
-		}
-
-		return specigiedMonthReport;
-	}
-
-	// 月報保存
-	@Transactional
-	public ErrorKinds save(Report report, UserDetail userDetail) {
-		// ログインしているユーザーのEmployeeを取得
-		Employee employee = userDetail.getEmployee();
-
-		LocalDateTime now = LocalDateTime.now();
-		report.setUpdatedAt(now);
-
-		if (report.isCompleteFlg()) {
-			report.setSubmittedAt(now);
-		} else {
-			report.setSubmittedAt(null);
-		}
-
-		report.setReportDeadline(report.getReportMonth().atEndOfMonth());
-
-		// 月重複チェック
-		ErrorKinds result = reportDateCheck(report, employee);
-		if (ErrorKinds.CHECK_OK != result) {
-			return result;
-		}
-
-		// ログインしているユーザーのEmployeeをReportに登録
-		report.setEmployee(employee);
-
-		reportRepository.save(report);
-
-		return ErrorKinds.SUCCESS;
-
-	}
-
 	@Transactional
 	public Report save(ReportDto dto, Employee employee) {
 		// 提出期日を設定する
@@ -125,33 +78,6 @@ public class ReportService {
 		}
 
 		return reportRepository.save(report);
-	}
-
-	// 月報更新
-	@Transactional
-	public ErrorKinds update(Report report) {
-
-		Employee employee = report.getEmployee();
-
-		// 月重複チェック
-		ErrorKinds result = reportDateCheck(report, employee);
-		if (ErrorKinds.CHECK_OK != result) {
-			return result;
-		}
-
-		LocalDateTime now = LocalDateTime.now();
-		report.setUpdatedAt(now);
-
-		if (report.isCompleteFlg()) {
-			report.setSubmittedAt(now);
-		} else {
-			report.setSubmittedAt(null);
-		}
-
-		report.setReportDeadline(report.getReportMonth().atEndOfMonth());
-
-		reportRepository.save(report);
-		return ErrorKinds.SUCCESS;
 	}
 
 	// 月報削除
