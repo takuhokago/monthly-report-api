@@ -48,19 +48,15 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/api/reports")
 public class ReportApiController {
 
-	private final AuthController authController;
-
 	private final ReportService reportService;
 	private final EmployeeService employeeService;
 	private final ExcelService excelService;
 
 	@Autowired
-	public ReportApiController(ReportService reportService, EmployeeService employeeService, ExcelService excelService,
-			AuthController authController) {
+	public ReportApiController(ReportService reportService, EmployeeService employeeService, ExcelService excelService) {
 		this.reportService = reportService;
 		this.employeeService = employeeService;
 		this.excelService = excelService;
-		this.authController = authController;
 	}
 
 	@GetMapping
