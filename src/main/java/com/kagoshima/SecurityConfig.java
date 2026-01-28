@@ -49,7 +49,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:4200", "https://monthly-report-frontend.vercel.app"));
+		config.setAllowedOrigins(List.of("http://localhost:4200", "https://monthly-report-frontend-git-koyeb-takuhokagos-projects.vercel.app/"));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setExposedHeaders(List.of("Content-Disposition"));
