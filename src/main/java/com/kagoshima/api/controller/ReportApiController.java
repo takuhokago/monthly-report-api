@@ -170,23 +170,13 @@ public class ReportApiController {
 			@AuthenticationPrincipal UserDetail userDetail) {
 
 		try {
-			Report report = reportService.findById(reportId);
-
-			// 本人 or 管理者 以外は403
-			Employee loginEmployee = userDetail.getEmployee();
-			if (!report.getEmployee().getCode().equals(loginEmployee.getCode())
-					&& loginEmployee.getRole() != Role.ADMIN) {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
-				return;
-			}
-
 			List<Report> reportList = reportService.getLatestReports(reportId, 3);
 			Collections.reverse(reportList);
 			Workbook workbook = excelService.createWorkbookWithReport(reportList);
 
 			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-			String encodedFileName = URLEncoder.encode(excelService.getFileName(report), StandardCharsets.UTF_8)
+			String encodedFileName = URLEncoder.encode(excelService.getFileName(reportList.get(0)), StandardCharsets.UTF_8)
 					.replace("+", "%20");
 
 			response.setHeader("Content-Disposition",

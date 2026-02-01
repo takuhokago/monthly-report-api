@@ -35,6 +35,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import com.kagoshima.entity.Department;
+import com.kagoshima.entity.Employee;
 import com.kagoshima.entity.Report;
 
 @Service
@@ -104,6 +106,10 @@ public class ExcelService {
 	}
 
 	private void writeData(Sheet sheet, Report report) {
+		// 先に取得しておく
+		Employee emp = report.getEmployee();
+		Department department = emp.getDepartment();
+		
 		// 上揃え、左揃え
 		CellStyle style = sheet.getWorkbook().createCellStyle();
 		style.setVerticalAlignment(VerticalAlignment.TOP); // 上揃え
@@ -146,8 +152,8 @@ public class ExcelService {
 
 		// C4
 		Cell cellC4 = row4.createCell(2);
-		if (report.getEmployee().getFullName() != null) {
-			cellC4.setCellValue(report.getEmployee().getFullName());
+		if (emp.getFullName() != null) {
+			cellC4.setCellValue(emp.getFullName());
 		}
 		cellC4.setCellStyle(styleCenter);
 
@@ -159,8 +165,8 @@ public class ExcelService {
 
 		// C7
 		Cell cellC7 = row7.createCell(2);
-		if (report.getEmployee().getDepartment() != null) {
-			cellC7.setCellValue(report.getEmployee().getDepartment().getName());
+		if (department != null) {
+			cellC7.setCellValue(department.getName());
 		}
 		cellC7.setCellStyle(styleCenter);
 
